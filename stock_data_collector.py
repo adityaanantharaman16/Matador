@@ -39,7 +39,10 @@ class StockDataCollector:
             "5d": "5m",
             "1mo": "1h",
             "6mo":"1d",
-            "1y":"1d"
+            "1y":"1d",
+            "5y":"1d",
+            "ytd":"1d",
+            "max":"1d"
         }
 
         plots = {}
