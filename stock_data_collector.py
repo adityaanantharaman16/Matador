@@ -2,27 +2,30 @@ import yfinance as yf
 import pandas as pd
 import matplotlib.pyplot as plt
 from datetime import datetime, timedelta
+from base_data_collector import BaseDataCollector
+from typing import Dict, Any
 
-class StockDataCollector:
-    def __init__(self, symbol):
+class StockDataCollector(BaseDataCollector):
+    def __init__(self, symbol: str):
         self.stock = yf.Ticker(symbol)
         self.info = self.stock.info
 
-    def get_stock_info(self):
-            return {
-                    "name": self.info.get("longName"),
-                    "symbol": self.stock.ticker,
-                    "sector": self.info.get("sector"),
-                    "industry": self.info.get("industry"),
-                    "price": self.info.get("currentPrice"),
-                    "market_cap": self.info.get("marketCap"),
-                    "pe_ratio": self.info.get("trailingPE"),
-                    "volume": self.info.get("volume"),
-                    "52w_high": self.info.get("fiftyTwoWeekHigh"),
-                    "52w_low": self.info.get("fiftyTwoWeekLow")
-                }
+    def get_asset_info(self) -> Dict[str, Any]:
+        return {
+            "_id": self.stock.ticker,
+            "name": self.info.get("longName"),
+            "symbol": self.stock.ticker,
+            "sector": self.info.get("sector"),
+            "industry": self.info.get("industry"),
+            "price": self.info.get("currentPrice"),
+            "marketCap": self.info.get("marketCap"),
+            "peRatio": self.info.get("trailingPE"),
+            "volume": self.info.get("volume"),
+            "fiftyTwoWeekHigh": self.info.get("fiftyTwoWeekHigh"),
+            "fiftyTwoWeekLow": self.info.get("fiftyTwoWeekLow")
+        }
 
-    def plot_price_history(self, period="1y", interval="1d"):
+    def plot_price_history(self, period="1y", interval="1d") -> plt.Figure:
         history = self.stock.history(period=period, interval=interval)
 
         plt.figure(figsize=(12,6))
@@ -33,34 +36,17 @@ class StockDataCollector:
         plt.grid(True)
         return plt
 
-    def generate_all_plots(self):
-        period = {
+    def generate_all_plots(self) -> Dict[str, plt.Figure]:
+        periods = {
             "1d": "1m",
-            "5d": "5m",
-            "1mo": "1h",
-            "6mo":"1d",
-            "1y":"1d",
-            "5y":"1d",
-            "ytd":"1d",
-            "max":"1d"
+            "1w": "5m",
+            "1m": "1h",
+            "3m": "1d",
+            "6m": "1d",
+            "1y": "1d"
         }
 
         plots = {}
-        for period, interval in period.items():
+        for period, interval in periods.items():
             plots[period] = self.plot_price_history(period, interval)
-
         return plots
-
-def main():
-    stock = StockDataCollector("AAPL")
-
-    info = stock.get_stock_info()
-    print("\nStock Information:")
-    for key, value in info.items():
-        print(f"{key}: {value}")
-
-    stock.generate_all_plots()
-    plt.show()
-
-if __name__ == "__main__":
-    main()
