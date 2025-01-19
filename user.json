@@ -1,9 +1,9 @@
 {
-    "_id": "NIGGER",
-    "name": "FAGGOT",
+    "_id": "example_id",
+    "name": "john_doe",
     "profilePicture": "https://example.com/profile.jpg",
     "bio": "Investor and tech enthusiast.",
-    "followers": ["Vysh", "mark_trader"],
+    "followers": ["speed_trader", "mark_trader"],
     "following": ["crypto_guru", "stock_master"],
     "stockKarma": 1500,
     "totalStockLikes": 250,

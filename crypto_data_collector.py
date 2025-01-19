@@ -66,11 +66,3 @@ class CryptoDataCollector(BaseDataCollector):
     def generate_all_plots(self) -> Dict[str, plt.Figure]:
         periods = ["1d", "1w", "1m", "3m", "6m", "1y"]
         return {period: self.plot_price_history(period) for period in periods}
-
-
-
-
-
-        
-    
-        
