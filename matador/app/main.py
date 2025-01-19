@@ -62,6 +62,46 @@ async def create_test_user():
         "user": created_user
     }
 
+@app.post("/api/auth/login")
+async def login(email: str, password_hash: str):
+    try:
+        # Query user collection with the provided email
+        user = await users_crud.collection.find_one({"email": email})
+
+        if not user:
+            raise HTTPException(
+                status_code=404,
+                detail="User not found"
+            )
+
+        # Check if password matches
+        if user["password_hash"] != password_hash:
+            raise HTTPException(
+                status_code=401,
+                detail="Invalid credentials"
+            )
+
+        # Return user data if login successful
+        return {
+            "status": "success",
+            "user": {
+                "_id": str(user["_id"]),
+                "name": user["name"],
+                "email": user["email"],
+                "bio": user.get("bio", ""),
+                "stockKarma": user.get("stockKarma", 0),
+                "cryptoKarma": user.get("cryptoKarma", 0)
+            }
+        }
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(
+            status_code=500,
+            detail=f"Login error: {str(e)}"
+        )
+
 
 @app.get("/test/users", response_model=TestUsersResponse)
 async def get_all_test_users():
