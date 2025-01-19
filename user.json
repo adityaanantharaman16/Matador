@@ -1,0 +1,19 @@
+{
+    "_id": "john_doe",  
+    "name": "John Doe",
+    "profilePicture": "https://example.com/profile.jpg",
+    "bio": "Investor and tech enthusiast.",
+    "followers": ["jane_smith", "mark_trader"], 
+    "following": ["crypto_guru", "stock_master"],
+    "stockKarma": 1500,
+    "totalStockLikes": 250,
+    "totalStockPitches": 25,
+    "cryptoKarma": 1000,
+    "totalCryptoLikes": 180,
+    "totalCryptoPitches": 15,
+    "stockPitches": ["pitch1", "pitch2"],
+    "likedStockPitches": ["pitch3", "pitch4"],
+    "cryptoPitches": ["crypto_pitch1", "crypto_pitch2"],
+    "likedCryptoPitches": ["crypto_pitch3", "crypto_pitch4"]
+  }
+  

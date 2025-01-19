@@ -1,0 +1,10 @@
+{
+    "_id": "comment1", 
+    "user": "john_doe", 
+    "content": "This is a great stock pitch!",
+    "createdAt": "2025-01-18T11:00:00Z",
+    "likes": 15,
+    "parentCommentID": null, 
+    "replies": []
+  }
+  
