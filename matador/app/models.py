@@ -24,6 +24,7 @@ class UserInDB(UserBase):
     cryptoPitches: List[str] = []
     likedStockPitches: List[str] = []
     likedCryptoPitches: List[str] = []
+    password: str
 
     model_config = ConfigDict(populate_by_name=True)
 

@@ -1,7 +1,5 @@
 import yfinance as yf
-import pandas as pd
 import matplotlib.pyplot as plt
-from datetime import datetime, timedelta
 from base_data_collector import BaseDataCollector
 from typing import Dict, Any
 

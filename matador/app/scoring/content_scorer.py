@@ -9,7 +9,6 @@ from .scoring_models import (
     ContentScore
 )
 from .score_calculator import ScoreCalculator
-from collector_factory import AssetCollectorFactory
 
 class ContentScorer:
     def __init__(self):

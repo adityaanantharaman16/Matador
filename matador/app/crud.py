@@ -3,6 +3,9 @@ from typing import Optional, List
 from bson import ObjectId
 from fastapi import HTTPException
 from database import db
+from scoring.content_scorer import ContentScorer
+from logger import logger
+
 
 class CRUD:
     def __init__(self, collection_name: str):
@@ -70,7 +73,76 @@ class CRUD:
         except Exception as e:
             raise HTTPException(status_code=400, detail=f"Delete failed: {str(e)}")
 
+class ScoringCRUD(CRUD):
+    def __init__(self, collection_name: str):
+        super().__init__(collection_name)
+        self.content_scorer = ContentScorer()
+
+    async def create_with_score(self, document: dict) -> dict:
+        """Create a document and calculate its initial score."""
+        # First create the document
+        created_doc = await self.create(document)
+
+        # Get user karma for scoring
+        user_id = document.get('user')
+        user_karma = await users_crud.get_by_id(user_id)
+
+        # Calculate initial score
+        score = await self.content_scorer.calculate_pitch_score(
+            created_doc,
+            user_karma
+        )
+
+        # Update document with score
+        score_dict = score.model_dump()
+        await self.update(str(created_doc['_id']), {
+            'score': score_dict
+        })
+
+        return await self.get_by_id(str(created_doc['_id']))
+
+    async def update_scores(self, filter_dict: dict = None) -> int:
+        """Update scores for multiple documents."""
+        cursor = self.collection.find(filter_dict or {})
+        update_count = 0
+
+        async for document in cursor:
+            try:
+                user_karma = await users_crud.get_by_id(document['user'])
+                score = await self.content_scorer.calculate_pitch_score(
+                    document,
+                    user_karma
+                )
+
+                await self.update(
+                    str(document['_id']),
+                    {'score': score.model_dump()}
+                )
+                update_count += 1
+            except Exception as e:
+                logger.error(f"Score update failed for {document['_id']}: {str(e)}")
+
+        return update_count
+
+    async def get_top_scored(
+            self,
+            limit: int = 20,
+            skip: int = 0,
+            min_score: float = 0
+    ) -> List[dict]:
+        """Get documents sorted by score."""
+        cursor = self.collection.find(
+            {'score.total_score': {'$gte': min_score}}
+        ).sort(
+            'score.total_score', -1
+        ).skip(skip).limit(limit)
+
+        return [doc async for doc in cursor]
+
 # Create CRUD instances for each collection
+stock_pitches_crud = ScoringCRUD('stockpitch')
+crypto_pitches_crud = ScoringCRUD('cryptopitch')
+
 # Users will use string IDs
 users_crud = CRUD('user')
 users_crud.use_object_id = False  # Users will use string IDs

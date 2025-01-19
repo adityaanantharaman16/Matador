@@ -1,3 +1,4 @@
+# matador/app/database.py
 from motor.motor_asyncio import AsyncIOMotorClient, AsyncIOMotorDatabase
 from fastapi import FastAPI
 from contextlib import asynccontextmanager
@@ -16,8 +17,39 @@ class Database:
             self.db = self.client[self.db_name]
             await self.client.admin.command('ping')
             print("Successfully connected to MongoDB!")
+
+            # Setup indexes after connection
+            await self.setup_indexes()
         except Exception as e:
             print(f"Could not connect to MongoDB: {e}")
+            raise
+
+    async def setup_indexes(self):
+        """Setup indexes for efficient score-based queries."""
+        try:
+            # Indexes for stock pitches
+            await self.db.stockpitch.create_index([
+                ('score.total_score', -1),
+                ('createdAt', -1)
+            ])
+            await self.db.stockpitch.create_index([
+                ('user', 1),
+                ('score.total_score', -1)
+            ])
+
+            # Indexes for crypto pitches
+            await self.db.cryptopitch.create_index([
+                ('score.total_score', -1),
+                ('createdAt', -1)
+            ])
+            await self.db.cryptopitch.create_index([
+                ('user', 1),
+                ('score.total_score', -1)
+            ])
+
+            print("Successfully created scoring indexes!")
+        except Exception as e:
+            print(f"Error creating indexes: {str(e)}")
             raise
 
     async def close_database_connection(self):
